@@ -1,0 +1,5 @@
+# Entorno de desarrollo
+env/
+
+# Cache
+**/__pycache__/
