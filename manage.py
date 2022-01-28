@@ -1,3 +1,4 @@
+# Importamos la función create_app que realizamos en __init__
 from app import create_app
 from flask_script import Manager
 # Importamos el diccionario 'config'
@@ -13,4 +14,5 @@ app = create_app(config_class)
 if __name__ == '__main__':
     # Usamos la clase Manager para correr la app
     manager = Manager(app)
+    # Corremos la aplicación
     manager.run()
