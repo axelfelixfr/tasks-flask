@@ -37,9 +37,11 @@ def create_app(config):
     # Para las vistas, usamos 'register_blueprint'
     app.register_blueprint(page)
 
+    # Creamos un contexto con 'app_context'
     with app.app_context():
         # Inicializamos SQLAlchemy
         db.init_app(app)
+        # Creamos tablas
         db.create_all()
 
     # Retornamos la app

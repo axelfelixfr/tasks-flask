@@ -1,6 +1,7 @@
 from flask import Blueprint
-from flask import render_template, request
-from .forms import LoginForm
+from flask import render_template, request, flash
+from .forms import LoginForm, RegisterForm
+from .models import User
 # Creamos una instancia de Blueprint para realizar vistas
 page = Blueprint('page', __name__)
 
@@ -36,4 +37,33 @@ def login():
         print('Nueva sesión creada')
 
     # Retornamos la vista, el title y el form para hacer uso de él
-    return render_template('auth/login.html', title='Login', form=form)
+    return render_template('auth/login.html', title='Inicio sesión', form=form)
+
+
+# Se coloca el method 'POST' para enviar el formulario
+@page.route('/register', methods=['GET', 'POST'])
+def register():
+    # Instancia de formulario de registro
+    form = RegisterForm(request.form)
+
+    # Si el method de la request es 'POST'
+    if request.method == 'POST':
+        # Si pasa la validación del formulario
+        if form.validate():
+            # Extraemos cada elemento para crear el usuario del form
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+
+            # Creamos el usuario, con el método 'create_user' del modelo 'User'
+            user = User.create_user(username, email, password)
+
+            # Con 'flash' podemos mostrar mensajes en la vista
+            flash('Usuario creado de forma exitosa')
+
+            # Mensajes de consola
+            print('Usuario creado de forma exitosa')
+            print(user.id)
+
+    # Retornamos la vista junto con el form y title
+    return render_template('auth/register.html', title='Registro', form=form)

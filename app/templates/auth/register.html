@@ -1,0 +1,42 @@
+{% extends 'layout.html' %} {% from 'helpers/_forms.html' import render_field %}
+{% block container %}
+
+<div class="col-md-12 col-md-offset-1">
+  <h3>Registro</h3>
+  <form method="POST">
+    {# Hacemos uso de la función csrf_token() para la protección del formulario
+    #}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group">
+      {# render_field -> renderizar inputs #} {# form -> Lo pasamos desde el
+      template #} {{ render_field(form.username, class='form-control',
+      placeholder='usuario') }}
+    </div>
+
+    <div class="form-group">
+      {{ render_field(form.email, class='form-control', placeholder='email') }}
+    </div>
+
+    <div class="form-group">
+      {{ render_field(form.password, class='form-control',
+      placeholder='contraseña') }}
+    </div>
+
+    <div class="form-group">
+      {{ render_field(form.confirm_password, class='form-control',
+      placeholder='confirmar contraseña') }}
+    </div>
+
+    <div class="form-check">
+      {# Con la instancia 'form', podemos acceder a los inputs #} {# En este
+      caso, accedemos al input 'accept' #} {# class_ -> Para pasarle clases al
+      HTML #} {{ form.accept(class_='form-check-input') }}
+      <label for="">Acepto los términos y condiciones</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+  </form>
+</div>
+
+{% endblock container %}
