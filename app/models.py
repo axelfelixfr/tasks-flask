@@ -1,12 +1,14 @@
 import datetime  # Importamos datetime
+from flask_login import UserMixin
 # Para generar hash en las contraseñas
 from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 # El '.' es una referencia al modulo principal (modulo de la app)
 from . import db
 
 
 # Usamos uso de ORM para creación del modelo User para la base de datos
-class User(db.Model):
+class User(db.Model, UserMixin):
     # Cambiamos el nombre de la tabla a 'users'
     __tablename__ = 'users'
 
@@ -16,6 +18,11 @@ class User(db.Model):
     encrypted_password = db.Column(db.String(94), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+
+    # Método para verificar el password
+    # Se compara el password encriptado con el password que se recibe en el login
+    def verify_password(self, password):
+        return check_password_hash(self.encrypted_password, password)
 
     # Se declara la propiedad password con el decorador 'property'
     @property
@@ -68,3 +75,11 @@ class User(db.Model):
         # Realizamos una busqueda del email con 'query.filter_by'
         # Buscamos al email
         return User.query.filter_by(email=email).first()
+
+    @classmethod
+    def get_by_id(cls, id):
+        # cls -> Es la misma instancia
+        # id -> ID a validar
+        # Realizamos una busqueda del id con 'query.filter_by'
+        # Buscamos al id
+        return User.query.filter_by(id=id).first()

@@ -5,9 +5,21 @@ title %} {% block navbar %}
     <a href="#" class="navbar-brand"></a>
     <div>
       <ul class="navbar-nav ml-auto">
+        {% if current_user.is_authenticated %}
         <li class="nav-item active">
-          <a href="#" class="nav-link">Index</a>
+          <a href="{{ url_for('.tasks') }}" class="nav-link">Tareas</a>
         </li>
+        <li class="nav-item active">
+          <a href="{{ url_for('.logout') }}" class="nav-link">Cerrar sesión</a>
+        </li>
+        {% else %}
+        <li class="nav-item active">
+          <a href="{{ url_for('.login') }}" class="nav-link">Iniciar sesión</a>
+        </li>
+        <li class="nav-item active">
+          <a href="{{ url_for('.register') }}" class="nav-link">Registrarme</a>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
@@ -17,12 +29,17 @@ title %} {% block navbar %}
   <div class="row">
     <div class="col-md-12 col-md-offset-1 mt-2">
       {# Con 'with' podremos transformar el método 'get_flashed_messages' a una
-      variable #} {% with messages = get_flashed_messages() %} {# Se comprueba
-      que exitan 'messages' #} {% if messages %} {# Se itera cada mensaje dentro
-      de 'messages' #} {% for message in messages %} {# Se muestra una alerta
-      con estilos de Bootstrap #}
+      variable #} {% with messages = get_flashed_messages(with_categories=True)
+      %} {# Se comprueba que exitan 'messages' #} {% if messages %} {# Se itera
+      cada mensaje dentro de 'messages' #} {% for category, message in messages
+      %} {# Se muestra una alerta con estilos de Bootstrap #} {% if category ==
+      'error' %}
+      <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% elif category == 'warning' %}
+      <div class="alert alert-warning" role="alert">{{ message }}</div>
+      {% else %}
       <div class="alert alert-success" role="alert">{{ message }}</div>
-      {% endfor %} {% endif %} {% endwith %}
+      {% endif %} {% endfor %} {% endif %} {% endwith %}
     </div>
     {% block container %}{% endblock container %}
   </div>
