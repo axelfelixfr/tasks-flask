@@ -1,4 +1,5 @@
 import datetime  # Importamos datetime
+# Para generar hash en las contraseñas
 from werkzeug.security import generate_password_hash
 # El '.' es una referencia al modulo principal (modulo de la app)
 from . import db
@@ -49,3 +50,21 @@ class User(db.Model):
 
         # Retornamos el user creado
         return user
+
+    # Métodos para validaciones de formulario
+    # Usamos el decorador 'classmethod' en ambos casos
+    @classmethod
+    def get_by_username(cls, username):
+        # cls -> Es la misma instancia
+        # username -> Username a validar
+        # Realizamos una busqueda del usuario con 'query.filter_by'
+        # Buscamos al username
+        return User.query.filter_by(username=username).first()
+
+    @classmethod
+    def get_by_email(cls, email):
+        # cls -> Es la misma instancia
+        # email -> Email a validar
+        # Realizamos una busqueda del email con 'query.filter_by'
+        # Buscamos al email
+        return User.query.filter_by(email=email).first()
