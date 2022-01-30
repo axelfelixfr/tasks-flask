@@ -100,6 +100,15 @@ class Task(db.Model):
     # Colocamos la llave foraneo para relacionar las tareas con el usuario que las creo
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.datetime.now())
+    # Migraciones
+    # En el caso de querer agregar nuevas columnas sin borrar los registros actuales, usamos migraciones
+    # Nos apoyamos en la librería Flask-Migrate
+    # Agregamos el campo 'updated_at'
+    # Para agregar dicho campo es necesario ejecutar estos 3 comandos:
+    # 'python manage.py db init' -> Para iniciar las migraciones
+    # 'python manage.py db migrate' -> Realizar nuevas migraciones
+    # 'python manage.py db upgrade' -> Realizar cambios en la base de datos
+    updated_at = db.Column(db.DateTime)
 
     # Creamos una propiedad para acortar la descripción
     @property

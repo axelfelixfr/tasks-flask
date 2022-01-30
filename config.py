@@ -28,8 +28,22 @@ class DevelopmentConfig(Config):
     MAIL_PASSWORD = config('MAIL_PASSWORD')
 
 
+# Configuración para pruebas
+class TestConfig(Config):
+    # Para realizar la conexión a la base de datos con SQLAlchemy es necesario armar la URL
+    # La url deben ser así: 'manejador://<usuario>:<password>@<hostname>/<base_de_datos>'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@localhost/tasks_flask_test'
+
+    # Modificaciones en False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Colocamos TEST en True para hacer configuraciones
+    TEST = True
+
+
 # Creamos un diccionario que contenga dicha configuración
 config = {
     'development': DevelopmentConfig,
-    'default': DevelopmentConfig
+    'default': DevelopmentConfig,
+    'test': TestConfig
 }

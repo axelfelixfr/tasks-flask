@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 # LoginManager
 from flask_login import LoginManager
+# Mail
 from flask_mail import Mail
 
 # Realizamos una instancia
@@ -26,7 +27,7 @@ mail = Mail()
 # Importamos page para las vistas
 # Usamos '.' al tratarse de un archivo local en la misma dirección
 from .views import page  # nopep8
-from .models import User  # nopep8
+from .models import User, Task  # nopep8
 from .consts import LOGIN_REQUIRED  # nopep8
 
 
@@ -35,8 +36,13 @@ def create_app(config):
     # Usamos el método 'from_object' ya que se trata de un objeto/diccionario la configuración
     app.config.from_object(config)
 
-    # Inicializamos Bootstrap
-    bootstrap.init_app(app)
+    # Comprobamos que no este en modo TEST para no dar error al inicializar Bootstrap
+    if not app.config.get('TEST', False):
+        # Inicializamos Bootstrap
+        bootstrap.init_app(app)
+
+    # Creamos un contexto con la app
+    app.app_context().push()
 
     # Inicializamos la seguridad CSRF
     csrf.init_app(app)
