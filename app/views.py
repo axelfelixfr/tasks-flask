@@ -5,6 +5,7 @@ from .forms import LoginForm, RegisterForm, TaskForm
 from .models import User, Task
 from . import login_manager
 from .consts import *
+from .email import welcome_mail
 
 # Creamos una instancia de Blueprint para realizar vistas
 page = Blueprint('page', __name__)
@@ -106,7 +107,11 @@ def register():
             # Con 'flash' podemos mostrar mensajes en la vista
             flash(USER_CREATED)
 
+            # Creamos la sesion
             login_user(user)
+
+            # Enviamos el correo
+            welcome_mail(user)
 
             return redirect(url_for('.tasks'))
 

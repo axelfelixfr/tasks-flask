@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 # LoginManager
 from flask_login import LoginManager
+from flask_mail import Mail
 
 # Realizamos una instancia
 app = Flask(__name__)
@@ -19,7 +20,8 @@ csrf = CSRFProtect()
 db = SQLAlchemy()
 # Realizamos la instancia de LoginManager para identificar usuarios y generar sesiones
 login_manager = LoginManager()
-
+# Realizamos la instancia de Mail para enviar correos
+mail = Mail()
 
 # Importamos page para las vistas
 # Usamos '.' al tratarse de un archivo local en la misma dirección
@@ -48,6 +50,9 @@ def create_app(config):
     login_manager.login_message = LOGIN_REQUIRED
     # login_message_category -> Sera la categoría del mensaje, nos servira para la alerta de Bootstrap
     login_manager.login_message_category = 'warning'
+
+    # Inicializamos Mail para el envio de correos
+    mail.init_app(app)
 
     # Para las vistas, usamos 'register_blueprint'
     app.register_blueprint(page)
