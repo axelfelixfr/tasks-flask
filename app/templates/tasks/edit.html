@@ -1,0 +1,22 @@
+{% extends 'layout.html' %} {% from 'helpers/_forms.html' import render_field %}
+{% block container %}
+<div class="col-md-12 col-md-offset-1">
+  <h3>Editar tarea</h3>
+  <form method="POST">
+    {# Hacemos uso de la función csrf_token() para la protección del formulario
+    #}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group">
+      {{ render_field(form.title, class='form-control', placeholder='titulo') }}
+    </div>
+
+    <div class="form-group">
+      {{ render_field(form.description, class='form-control',
+      placeholder='descripcion') }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar tarea</button>
+  </form>
+</div>
+{% endblock container %}

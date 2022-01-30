@@ -6,17 +6,19 @@ title %} {% block navbar %}
     <div>
       <ul class="navbar-nav ml-auto">
         {% if current_user.is_authenticated %}
-        <li class="nav-item active">
+        <li class="nav-item {% if active == 'tasks' %} active {% endif %}">
           <a href="{{ url_for('.tasks') }}" class="nav-link">Tareas</a>
         </li>
-        <li class="nav-item active">
-          <a href="{{ url_for('.logout') }}" class="nav-link">Cerrar sesión</a>
+        <li class="nav-item">
+          <a href="{{ url_for('.logout') }}" class="btn btn-danger"
+            >Cerrar sesión</a
+          >
         </li>
         {% else %}
-        <li class="nav-item active">
+        <li class="nav-item {% if active == 'login' %} active {% endif %}">
           <a href="{{ url_for('.login') }}" class="nav-link">Iniciar sesión</a>
         </li>
-        <li class="nav-item active">
+        <li class="nav-item {% if active == 'register' %} active {% endif %}">
           <a href="{{ url_for('.register') }}" class="nav-link">Registrarme</a>
         </li>
         {% endif %}

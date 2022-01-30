@@ -1,8 +1,8 @@
 from flask import Blueprint
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from .forms import LoginForm, RegisterForm
-from .models import User
+from .forms import LoginForm, RegisterForm, TaskForm
+from .models import User, Task
 from . import login_manager
 from .consts import *
 
@@ -76,7 +76,7 @@ def login():
             flash(ERROR_USER_LOGIN, 'error')
 
     # Retornamos la vista, el title y el form para hacer uso de él
-    return render_template('auth/login.html', title='Inicio sesión', form=form)
+    return render_template('auth/login.html', title='Inicio sesión', form=form, active='login')
 
 
 # Se coloca el method 'POST' para enviar el formulario
@@ -111,13 +111,106 @@ def register():
             return redirect(url_for('.tasks'))
 
     # Retornamos la vista junto con el form y title
-    return render_template('auth/register.html', title='Registro', form=form)
+    return render_template('auth/register.html', title='Registro', form=form, active='register')
 
 
 # Ruta para las tareas
 @page.route('/tasks')
+@page.route('/tasks/<int:page>')  # Incluimos otra ruta para la paginación
 # Decoramos con 'login_required' de LoginManager, para requerir estar logueado
 @login_required
-def tasks():
+def tasks(page=1, per_page=4):  # page, per_page -> Paginación
+
+    # Ahora con el current_user podemos acceder a sus tareas y paginarlas
+    pagination = current_user.tasks.paginate(page, per_page)
+
+    # Devolvera las tareas de acuerdo a la paginación
+    tasks = pagination.items
+
     # Retornamos la vista de lista de tareas
-    return render_template('tasks/list.html', title='Tareas')
+    return render_template('tasks/list.html', title='Tareas', tasks=tasks, pagination=pagination, page=page, active='tasks')
+
+
+# Ruta para crear una nueva tarea
+@page.route('/tasks/new', methods=['GET', 'POST'])
+@login_required
+def new_task():
+    # Instancia del formulario para crear tareas
+    form = TaskForm(request.form)
+
+    # Si la request es 'POST' y el formulario paso la validación, crea la tarea
+    if request.method == 'POST' and form.validate():
+
+        # Accedemos a title y description a través del 'form'
+        title = form.title.data
+        description = form.description.data
+
+        # En cambio para id del usuario, usamos el current_user
+        user_id = current_user.id
+
+        # Creamos dicha tarea
+        task = Task.create_task(title, description, user_id)
+
+        # Si todo paso correctamente, devolvemos un mensaje y redirigimos a '/tasks'
+        if task:
+            flash(TASK_CREATED)
+            return redirect(url_for('.tasks'))
+
+    return render_template('tasks/new.html', title='Nueva tarea', form=form)
+
+
+@page.route('/tasks/show/<int:task_id>')
+@login_required
+def get_task(task_id):
+    task = Task.query.get_or_404(task_id)
+
+    return render_template('tasks/show.html', title='Tarea', task=task)
+
+
+@page.route('/tasks/edit/<int:task_id>', methods=['GET', 'POST'])
+@login_required
+def edit_task(task_id):
+    # Con la clase Task accedemos a 'get_or_404'
+    # Con el método 'get_or_404' podremos obtener una tarea (task)
+    task = Task.query.get_or_404(task_id)
+
+    # Si la tarea no fue realizada por el mismo usuario que esta en sesion, manda un error 404
+    if task.user_id != current_user.id:
+        abort(404)
+
+    # Podemos pasar la información (atributos de la BD) de la tarea con el 'obj'
+    # Al 'obj' lo definimos como 'task' que obtuvimos
+    form = TaskForm(request.form, obj=task)
+
+    # Si la request es 'POST' y paso la validación el formulario hacemos la actualización
+    if request.method == 'POST' and form.validate():
+        # Actualizamos la tarea
+        update_task = Task.update_task(
+            task.id, form.title.data, form.description.data)
+
+        # Si todo paso correctamente, mostramos un mensaje y redirigimos a '/tasks'
+        if update_task:
+            flash(TASK_UPDATE_SUCCESS)
+            return redirect(url_for('.tasks'))
+
+    # Retornamos la vista con el 'form' ya llenado
+    return render_template('tasks/edit.html', title='Editar tarea', form=form)
+
+
+# Ruta para eliminar una tarea
+# En este caso es necesario contar con el parámetro 'task_id'
+@page.route('/tasks/delete/<int:task_id>')
+@login_required
+def delete_task(task_id):
+    # Con el modelo Task, podemos buscar por el id
+    task = Task.query.get_or_404(task_id)
+
+    # Si la tarea no le pertenece al usuario, retorna un 404
+    if task.user_id != current_user.id:
+        abort(404)
+
+    # Borra dicha tarea y regresa un mensaje
+    if Task.delete_task(task.id):
+        flash(TASK_DELETE_SUCCESS)
+
+    return redirect(url_for('.tasks'))
